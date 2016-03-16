@@ -3,19 +3,77 @@
 
 int main()
 {
-    // Define the five bytes to send ("hello")
-    char bytes_to_send[5];
-    bytes_to_send[0] = 0;
-    bytes_to_send[1] = 101;
-    bytes_to_send[2] = 108;
-    bytes_to_send[3] = 108;
-    bytes_to_send[4] = 111;
-
-    // Declare variables and structures
+    char byte_to_send; // 1 -ON, 0 - OFF
+    char command[10];
     HANDLE hSerial;
     DCB dcbSerialParams = {0};
     COMMTIMEOUTS timeouts = {0};
-
+    int isWorking = 0;
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    COORD pos;
+    pos.X = 20;
+    pos.Y = 0;
+    while(1)
+    {
+        while(1)
+        {
+            printf("Enter the command\n");
+            SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN);
+            printf(">>");
+            SetConsoleTextAttribute(hConsole, FOREGROUND_BLUE|FOREGROUND_GREEN);
+            gets(command);
+            SetConsoleTextAttribute(hConsole, FOREGROUND_BLUE|FOREGROUND_GREEN|FOREGROUND_RED);
+            if(!strcmp(command, "start"))
+            {
+                if(!isWorking)
+                {
+                    isWorking = 1;
+                    byte_to_send = 1;
+                    break;
+                }
+                else
+                {
+                    printf("The engine is working");
+                    getch();
+                    system("cls");
+                }
+            }
+            else
+                if(!strcmp(command, "stop"))
+                {
+                    if(isWorking)
+                    {
+                        isWorking = 0;
+                        byte_to_send = 0;
+                        SetConsoleCursorPosition(hConsole, pos);
+                        break;
+                    }
+                    else
+                    {
+                        printf("The engine is already stopped");
+                        getch();
+                        system("cls");
+                    }
+                }
+                else
+                    if(!strcmp(command, "exit"))
+                    {
+                        // Close serial port
+                        fprintf(stderr, "Closing serial port...");
+                        if (CloseHandle(hSerial) == 0)
+                        {
+                            fprintf(stderr, "Error\n");
+                            return 1;
+                        }
+                        return EXIT_SUCCESS;
+                    }
+                    else
+                    {
+                        printf("Enter correct command");
+                        getch();
+                        system("cls");
+                    }
+            }
     // Open the highest available serial port number
     fprintf(stderr, "Opening serial port...");
     hSerial = CreateFile(
@@ -63,25 +121,18 @@ int main()
     }
 
     // Send specified text (remaining command line arguments)
-    DWORD bytes_written, total_bytes_written = 0;
-    fprintf(stderr, "Sending bytes...");
-    if(!WriteFile(hSerial, bytes_to_send, 5, &bytes_written, NULL))
+    DWORD byte_written;
+    fprintf(stderr, "Sending byte...");
+    if(!WriteFile(hSerial, byte_to_send, 5, &byte_written, NULL))
     {
         fprintf(stderr, "Error\n");
         CloseHandle(hSerial);
         return 1;
     }
-    fprintf(stderr, "%d bytes written\n", bytes_written);
-
-    // Close serial port
-    fprintf(stderr, "Closing serial port...");
-    if (CloseHandle(hSerial) == 0)
-    {
-        fprintf(stderr, "Error\n");
-        return 1;
-    }
+    fprintf(stderr, "%d byte written\n", byte_written);
     fprintf(stderr, "OK\n");
-
-    // exit normally
+    getch();
+    system("cls");
+    }
     return 0;
 }

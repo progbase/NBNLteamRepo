@@ -1,0 +1,3 @@
+#pragma once
+
+typedef enum DOOR_PROTOCOL {CLOSE = 1, OPEN} DOOR_PROTOCOL; // ANTICLOCKWISE, CLOCKWISE
