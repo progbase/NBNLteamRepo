@@ -11,7 +11,9 @@ int main()
     char command[10];
     HANDLE hSerial;
     int status = 0;
+	size_t port = 3;
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	system("cls");
     while(1)
     {
         while(1)
@@ -76,10 +78,11 @@ int main()
                     {
                         // Close serial port
                         fprintf(stderr, "Closing serial port...");
+						system("cls");
                         if (CloseHandle(hSerial) == 0)
                         {
                             fprintf(stderr, "Error\n");
-                            return 1;
+                            return EXIT_FAILURE;
                         }
                         return EXIT_SUCCESS;
                     }
@@ -125,6 +128,13 @@ static printCommands()
     printf("getStatus  --  ");
     SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN|FOREGROUND_BLUE|FOREGROUND_RED);
     printf("Getting status of the door");
+	pos.X = 30;
+    pos.Y = 6;
+	SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN);
+    SetConsoleCursorPosition(hConsole, pos);
+    printf("exit  --  ");
+    SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN|FOREGROUND_BLUE|FOREGROUND_RED);
+    printf("Exitting from the application");
     pos.X = 0;
     pos.Y = 2;
     SetConsoleCursorPosition(hConsole, pos);
