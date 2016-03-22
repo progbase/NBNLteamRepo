@@ -6,7 +6,7 @@
 
 //---( Steps per OUTPUT SHAFT of gear reduction )---
 #define STEPS_PER_OUTPUT_REVOLUTION 32 * 64  //2048  
-#define STEP_CIRCLES ((float)2) 
+#define STEP_CIRCLES ((float)1.3) 
 
 /*-----( Declare objects )-----*/
 // create an instance of the stepper class, specifying
@@ -20,7 +20,7 @@ Stepper small_stepper(STEPS_PER_MOTOR_REVOLUTION, 10, 8, 9, 11);
 int received;
 /*-----( Declare Variables )-----*/
 int  Steps2Take;
-int work = 1;
+int work = 0;
 void setup()   /*----( SETUP: RUNS ONCE )----*/
 {
   Serial.begin(9600);
@@ -32,7 +32,6 @@ void loop()   /*----( LOOP: RUNS CONSTANTLY )----*/
   {
     // read the incoming byte:
     received = Serial.read();
-    Serial.println(received, DEC);
     switch(received)
     {
       case '0': case 0:
@@ -46,17 +45,19 @@ void loop()   /*----( LOOP: RUNS CONSTANTLY )----*/
       case '2': case 2: // CLOCKWISE 
       {
         work = -1;
+      }break;
+      case '3': case 3: // DEBUG THINGY Anticlockwise
+      {
+        work = 0.1;
       }
     }
    }
-    Serial.println(work, DEC);
-    Steps2Take  =  work * STEPS_PER_OUTPUT_REVOLUTION * STEP_CIRCLES;  // Rotate CCW OR CW OR 0 for 1 turn  
-    small_stepper.setSpeed(600);  // 700 a good max speed??
-    small_stepper.step(Steps2Take);
-    work = 0;
-  delay(1000);
+ Steps2Take  =  work * STEPS_PER_OUTPUT_REVOLUTION * STEP_CIRCLES;  // Rotate CCW OR CW OR 0 for 1 turn  
+ small_stepper.setSpeed(600);  // 700 a good max speed??
+ small_stepper.step(Steps2Take);
+ work = 0;
+ delay(1000);
 
 }/* --(end main loop )-- */
 
 /* ( THE END ) */
-
