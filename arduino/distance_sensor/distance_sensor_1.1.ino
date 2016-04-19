@@ -12,14 +12,14 @@ void setup() {
 }
  
 void loop() {
-  delay(500);
+  delay(100);
   int firstDis = sonar.ping();
-  delay(5000);
+  delay(2500);
   int secondDis = sonar.ping();
-  if ((firstDis - secondDis) > 5)
-    Serial.println("Car");
+  if ((firstDis - secondDis) > 7)
+    digital.write(1);
   else
-    Serial.println("Nothing");
+    digital.write(0);
   Serial.println("Ping: ");
   Serial.println(firstDis / US_ROUNDTRIP_CM);
   Serial.println("cm");
