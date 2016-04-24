@@ -1,63 +1,140 @@
+enum GARAGE_PROTOCOL {
+  GET_PERSON_MOTION_STATUS, // expects to receive a 1 - there is motion, 0 - there is no motion
+  GET_CAR_MOTION_STATUS, // expects to receive a 1 - there is a car moving, 0 - there is no car moving
+  GET_CAR_PRESENCE_STATUS, // expects to receive a 1 - there is a car in the garage, 0 - there is not
+  GET_DOOR_STATUS, // expects to receive 1 - the door is opened, 0 - the door is closed
+  SET_DOOR_OPEN, // expects to receive 1 if opening, 0 if already
+  SET_DOOR_CLOSE // expects to receive 1 if closing, 0 if already
+};
 #include <Stepper.h>
-
-/*-----( Declare Constants, Pin Numbers )-----*/
+#include <NewPing.h>
+//Stepper
 //---( Number of steps per revolution of INTERNAL motor in 4-step mode )---
-#define STEPS_PER_MOTOR_REVOLUTION 32   
-
+const int nStepsPerMotorRevolution = 32;
 //---( Steps per OUTPUT SHAFT of gear reduction )---
-#define STEPS_PER_OUTPUT_REVOLUTION 32 * 64  //2048  
-#define STEP_CIRCLES ((float)1.3) 
+const int nStepsPerOutputRevolution = 32 * 64;  //2048
+const float nCircles = 1.3;
+Stepper small_stepper(nStepsPerMotorRevolution, 10, 8, 9, 11); // STEPPER CREATION
 
-/*-----( Declare objects )-----*/
-// create an instance of the stepper class, specifying
-// the number of steps of the motor and the pins it's
-// attached to
+const int maxLightVal = 185;
+const int minLightVal = 10;
+const int maxDistance = 400;
+// PINS
+const int pResistor1 = A1; // Photoresistor 
+const int pResistor2 = A2;
+const int pMotionSencor = 2;
+const int pEcho = 6;
+const int pTrigger = 7;
+const int pLight = 5;
 
-//The pin connections need to be 4 pins connected
-// to Motor Driver In1, In2, In3, In4  and then the pins entered
-// here in the sequence 1-3-2-4 for proper sequencing
-Stepper small_stepper(STEPS_PER_MOTOR_REVOLUTION, 10, 8, 9, 11);
-int received;
-/*-----( Declare Variables )-----*/
-int  Steps2Take;
-int work = 0;
-void setup()   /*----( SETUP: RUNS ONCE )----*/
-{
-  Serial.begin(9600);
-}/*--(end setup )---*/
+const int doorStepOpen = -1;
+// GLOBALS
+int isMotionDetected = 0;
+int isPresent = 0;
+int isCarMotion = 0;
+int isDoorOpened = 0;
+NewPing sonar(pTrigger, pEcho, maxDistance);
 
-void loop()   /*----( LOOP: RUNS CONSTANTLY )----*/
-{
-  if (Serial.available() > 0) 
+void setup() {
+  Serial.begin(9600); // BAUD RATE
+  pinMode(pResistor1, INPUT);
+  pinMode(pResistor2, INPUT);
+  pinMode(pMotionSencor, INPUT);
+  pinMode(pLight, OUTPUT);
+
+}
+
+void loop() {
+  if (Serial.available() > 0)
   {
     // read the incoming byte:
-    received = Serial.read();
-    switch(received)
-    {
-      case '0': case 0:
+    char received = Serial.read();
+    message_proccess(received);
+  }
+  int valRes1 = analogRead(pResistor1);
+  int valRes2 = analogRead(pResistor2);
+  int valMotion = digitalRead(pMotionSencor);
+  setCarPresence(valRes1, valRes2);
+  setMotionDetection(valMotion);
+  checkLights();
+}
+void checkLights()
+{
+  if(isCarMotion)
+    analogWrite(pLight, maxLightVal);
+  else if(isMotionDetected)
+    analogWrite(pLight, minLightVal);
+  else
+    analogWrite(pLight, LOW);
+}
+void setCarPresence(int valRes1, int valRes2)
+{
+  if (abs(valRes1 - valRes2) < 40)
+    isPresent = 1;
+  else
+    isPresent = 0;
+}
+void setMotionDetection(int valMotion)
+{
+  float dist = sonar.ping() / US_ROUNDTRIP_CM;
+  if (dist > 22)
+    isCarMotion = 0;
+  else if(dist > 1)
+    isCarMotion = 1;
+  if (valMotion == HIGH)
+    isMotionDetected = 1;
+  else
+    isMotionDetected = 0;
+}
+void message_proccess(char message)
+{
+  switch (message)
+  {
+    case GET_PERSON_MOTION_STATUS: case '0':
       {
-        work = 0;
-      }break;
-      case '1': case 1: // ANTICLOCKWOSE
+        Serial.write(isMotionDetected);
+      } break;
+    case GET_CAR_MOTION_STATUS:
       {
-        work = 1;
-      }break;
-      case '2': case 2: // CLOCKWISE 
+        Serial.write(isCarMotion);
+      } break;
+    case GET_CAR_PRESENCE_STATUS: case '2':
       {
-        work = -1;
-      }break;
-      case '3': case 3: // DEBUG THINGY Anticlockwise
+        Serial.write(isPresent);
+      } break;
+    case GET_DOOR_STATUS:
       {
-        work = 0.1;
-      }
-    }
-   }
- Steps2Take  =  work * STEPS_PER_OUTPUT_REVOLUTION * STEP_CIRCLES;  // Rotate CCW OR CW OR 0 for 1 turn  
- small_stepper.setSpeed(600);  // 700 a good max speed??
- small_stepper.step(Steps2Take);
- work = 0;
- delay(1000);
-
-}/* --(end main loop )-- */
-
-/* ( THE END ) */
+        Serial.write(isDoorOpened);
+      } break;
+    case SET_DOOR_OPEN:
+      {
+        if (isDoorOpened)
+        {
+          Serial.write(0);
+          break;
+        }
+        Serial.write(1);
+        isDoorOpened = 1;
+        stepperTurn(doorStepOpen);
+      } break;
+    case SET_DOOR_CLOSE:
+      {
+        if (isDoorOpened == 0)
+        {
+          Serial.write(0);
+          break;
+        }
+        Serial.write(1);
+        isDoorOpened = 0;
+        stepperTurn(-doorStepOpen);
+      } break;
+    default:
+      Serial.println("Shit happens");
+  }
+}
+void stepperTurn(int clockwise)
+{
+  int stepsToTake =  clockwise * nStepsPerOutputRevolution * nCircles; // Rotate CCW OR CW OR 0 for 1 turn
+  small_stepper.setSpeed(600);  // 700 a good max speed??
+  small_stepper.step(stepsToTake);
+} 
