@@ -11,7 +11,7 @@ using namespace sf;
 int main(void)
 {
 	int car_check_status = 0;
-	start_car_check(7, &(car_check_status));
+	start_car_check(9, &(car_check_status));
     garage_t * serial_garage = garage_new(PORT);
     // Style::Fullscreen
     RenderWindow window(VideoMode (1366, 768), "Smart Garage API");
