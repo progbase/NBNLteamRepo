@@ -10,9 +10,11 @@ using namespace sf;
 
 int main(void)
 {
+	int prevTime = 0.0f;
+	int doorOpenedByCar = 0;
 	int car_check_status = 0;
-	start_car_check(9, &(car_check_status));
-    garage_t * serial_garage = garage_new(PORT);
+	start_car_check(6, &(car_check_status));
+    garage_t * serial_garage = garage_new(10);
     // Style::Fullscreen
     RenderWindow window(VideoMode (1366, 768), "Smart Garage API");
 
@@ -147,6 +149,19 @@ int main(void)
 					}
 				}
 			}
+			if (car_check_status == 1)
+			{
+				if (garage_get_door_status(serial_garage) == 0)
+				{
+					garage_set_door_open(serial_garage);
+					doorOpenedByCar = 1;
+				}
+			}
+			if (car_check_status == 0 && doorOpenedByCar == 1)
+			{
+				garage_set_door_close(serial_garage);
+				doorOpenedByCar = 0;
+			}
 			if (garage_get_door_status(serial_garage) == 1) {
 				text.setString("GARAGE  IS  OPENED");
 				text.setColor(Color(0, 255, 0));
@@ -175,8 +190,11 @@ int main(void)
 				text3.setString("LIGHT IS OFF!");
 			}
 		}
-		else
+		else if (prevTime + 10 > time(NULL))
+		{
 			serial_garage = garage_new(PORT);
+			prevTime = time(NULL);
+		}
 
 
 
@@ -202,8 +220,10 @@ int main(void)
         window.display();
 
     }
-	if(serial_garage != NULL)
-	 garage_delete(serial_garage);
+	if (serial_garage != NULL)
+	{
+		garage_delete(serial_garage);
+	}
     return 0;
 }
 
