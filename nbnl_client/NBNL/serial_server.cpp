@@ -14,11 +14,13 @@ serial_server_t * serial_server_new(int com_port)
     DCB dcbSerialParams = {0};
     COMMTIMEOUTS timeouts = {0};
     char com_path[100];
-    sprintf(com_path, "\\\\.\\COM%i", com_port);
+    sprintf(com_path, "COM%i", com_port);
     //fprintf(stderr, "Opening serial port...");
-	LPCWSTR com_path_ascii = (LPCWSTR)TEXT("COM3"); // @todo: HARDCODED thingy
+	wchar_t text_w[100];
+	mbstowcs(text_w, com_path, strlen(com_path) + 1);//Plus null
+	LPWSTR ptr = text_w;
     hSerial = CreateFile(
-                com_path_ascii, GENERIC_READ|GENERIC_WRITE, 0, NULL,
+		ptr, GENERIC_READ|GENERIC_WRITE, 0, NULL,
                 OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL );
     if (hSerial == INVALID_HANDLE_VALUE)
     {

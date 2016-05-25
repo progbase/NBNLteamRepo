@@ -21,7 +21,7 @@ static void * car_check(void * args)
     {
         serial_server_t * car = serial_server_new(data->com_port);
         if(car != NULL)
-        {
+		{
             *(data->status) = 0;
             serial_server_delete(car);
             Sleep(10000);
