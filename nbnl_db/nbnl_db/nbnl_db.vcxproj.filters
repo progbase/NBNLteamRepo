@@ -13,15 +13,21 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="html_gen">
+      <UniqueIdentifier>{6f0c554b-9267-437c-bc52-12038e1da9e1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="list\list.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="nbnl_db.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="html_gen.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="list\list.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -31,6 +37,9 @@
     </ClInclude>
     <ClInclude Include="list\list.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="html_gen.h">
+      <Filter>html_gen</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
