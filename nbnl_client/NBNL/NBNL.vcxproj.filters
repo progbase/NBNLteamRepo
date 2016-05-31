@@ -30,6 +30,15 @@
     <ClCompile Include="car_check.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="html_gen.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="nbnl_db.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="list\list.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="libthread\mutex.h">
@@ -48,6 +57,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="serial_server.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="html_gen.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="nbnl_db.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="list\list.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
