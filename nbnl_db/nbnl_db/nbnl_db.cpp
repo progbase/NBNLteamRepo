@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 struct db_con_s {
 	sqlite3 * db;
 };
@@ -17,6 +18,13 @@ db_con_t * db_connect(char * file_name)
 		return NULL;
 	}
 	return self;
+}
+char*  time_to_string(time_t t, char * buffer)
+{
+	struct tm *gm;
+	gm = localtime(&t);
+	sprintf(buffer, "%d/%d/%d   %d.%d", gm->tm_year + 1900, gm->tm_mon + 1, gm->tm_mday, gm->tm_hour, gm->tm_min);
+	return buffer;
 }
 
 void db_add_entry(db_con_t * self, char * type, time_t actionTime, char * called)

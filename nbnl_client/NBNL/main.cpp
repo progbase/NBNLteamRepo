@@ -3,6 +3,8 @@
 #include <windows.h>
 #include "garage_communication.h"
 #include "car_check.h"
+#include "nbnl_db.h"
+#include "html_gen.h"
 #define SLEEP_TIME 5000
 #define PORT 3
 
@@ -14,7 +16,8 @@ int main(void)
 	int doorOpenedByCar = 0;
 	int car_check_status = 0;
 	start_car_check(6, &(car_check_status));
-    garage_t * serial_garage = garage_new(10);
+    garage_t * serial_garage = garage_new(3);
+	db_con_t * con = db_connect("nbnl_garage.db");
     // Style::Fullscreen
     RenderWindow window(VideoMode (1366, 768), "Smart Garage API");
 
@@ -29,6 +32,13 @@ int main(void)
     Text text3("", font, 50);
     text3.setColor(Color(0,0,255));
     text3.setStyle(Text::Bold);
+
+	Text text9("", font, 50);
+	
+	text9.setColor(Color(153, 0, 0));
+	text9.setStyle(Text::Bold);
+	text9.setString("STATs");
+
 
 
     Image garage;
@@ -67,6 +77,16 @@ int main(void)
     close_s.setScale(0.36, 0.45);
     close_s.setPosition(310, 420);
 
+	Image button;
+	button.loadFromFile("button.png");
+	button.createMaskFromColor(Color(255, 255, 255));
+	Texture button_t;
+	button_t.loadFromImage(button);
+	Sprite button_s;
+	button_s.setTexture(button_t);
+	button_s.setScale(1.5, 2);
+	button_s.setPosition(900, 320);
+
     while(window.isOpen())
     {
 		if (car_check_status == 0)
@@ -93,12 +113,23 @@ int main(void)
                     close_s.setScale(0.4, 0.5);
                     close_s.setPosition(290, 410);
                 }
+				else if (event.mouseMove.x > 885 && event.mouseMove.x < 1090 && event.mouseMove.y > 310 && event.mouseMove.y < 410)
+				{
+					button_s.setScale(1.1, 2.2);
+					button_s.setPosition(890, 315);
+					text9.setCharacterSize(55);
+					text9.setPosition(910, 330);
+				}
                 else
                 {
                     open_s.setScale(0.3, 0.3);
                     open_s.setPosition(300, 200);
                     close_s.setScale(0.36, 0.45);
                     close_s.setPosition(310, 420);
+					button_s.setScale(1, 2);
+					button_s.setPosition(900, 320);
+					text9.setCharacterSize(50);
+					text9.setPosition(915, 330);
                 }
 
             }
@@ -125,15 +156,34 @@ int main(void)
 					}
 				}
 			}
+			//statistics
+			if (event.type == Event::MouseButtonPressed)
+			{
+				if (event.mouseButton.button == Mouse::Left)
+				{
+					if(event.mouseButton.x > 885 && event.mouseButton.x < 1090 && event.mouseButton.y > 310 && event.mouseButton.y < 410){
+						garage_stats_entry e{
+						1,
+						"CAR",
+						1,
+						 "MANUALLY"
+						};
+						html_gen("out.html", &e, 1);
+						html_file_open("out.html");
+					}
+				}
+			}
 
 			//open
 			if (event.type == Event::MouseButtonPressed)
 			{
 				if (event.mouseButton.button == Mouse::Left)
 				{
-					if (event.mouseButton.x > 319 && event.mouseButton.x < 520 && event.mouseButton.y > 255 && event.mouseButton.y < 373)
+					if (event.mouseButton.x > 319 && event.mouseButton.x < 690 && event.mouseButton.y > 255 && event.mouseButton.y < 373)
 					{
-						garage_set_door_open(serial_garage);
+						int rc = garage_set_door_open(serial_garage);
+						if (rc == 1)
+							db_add_entry(con, "OPEN", time(NULL), "MANUALLY");
 					}
 				}
 			}
@@ -145,7 +195,9 @@ int main(void)
 				{
 					if (event.mouseButton.x > 319 && event.mouseButton.x < 517 && event.mouseButton.y > 426 && event.mouseButton.y < 539)
 					{
-						garage_set_door_close(serial_garage);
+						int rc = garage_set_door_close(serial_garage);
+						if (rc == 1)
+							db_add_entry(con, "CLOSE", time(NULL), "MANUALLY");
 					}
 				}
 			}
@@ -153,14 +205,22 @@ int main(void)
 			{
 				if (garage_get_door_status(serial_garage) == 0)
 				{
-					garage_set_door_open(serial_garage);
-					doorOpenedByCar = 1;
+					int rc = garage_set_door_open(serial_garage);
+					if (rc == 1)
+					{
+						doorOpenedByCar = 1;
+						db_add_entry(con, "OPEN", time(NULL), "AUTOMATICALLY");
+					}
 				}
 			}
 			if (car_check_status == 0 && doorOpenedByCar == 1)
 			{
-				garage_set_door_close(serial_garage);
-				doorOpenedByCar = 0;
+				int rc = garage_set_door_close(serial_garage);
+				if (rc == 1)
+				{
+					doorOpenedByCar = 0;
+					db_add_entry(con, "CLOSE", time(NULL), "AUTOMATICALLY");
+				}
 			}
 			if (garage_get_door_status(serial_garage) == 1) {
 				text.setString("GARAGE  IS  OPENED");
@@ -201,7 +261,9 @@ int main(void)
 		text.setPosition(100, 100);
 		text2.setPosition(700, 100);
         text3.setPosition(700, 500);
+		
 		window.clear(Color::White);
+		window.draw(garage_sprite);
 		if (serial_garage != NULL)
 		{
 			window.draw(offButton_s);
@@ -209,13 +271,18 @@ int main(void)
 			window.draw(close_s);
 			window.draw(text2);
 			window.draw(text3);
+			window.draw(button_s);
+			window.draw(text9);
+
+
 		}
 		else
 		{
 			text.setColor(Color(255, 0, 0));
 			text.setString("Could not connect to the garage!");
 		}
-		window.draw(garage_sprite);
+		
+
 		window.draw(text);
         window.display();
 

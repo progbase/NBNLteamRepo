@@ -13,7 +13,8 @@ void html_gen(char * fileName, garage_stats_entry * entries, size_t count)
 	for (int i = 0; i < count; i++)
 	{
 		char entry_buf[HTML_BUFF_LEN];
-		char * time_str = ctime((const time_t * )&(entries[i].actionTime));
+		char time_str[1000];
+		time_to_string(entries[i].actionTime, time_str);
 		sprintf(entry_buf, "<tr><td>%i</td><td>%s</td><td>%s</td><td>%s</td></tr>", entries[i].id, entries[i].type, time_str, entries[i].called);
 		strcat(table_buff, entry_buf);
 	}

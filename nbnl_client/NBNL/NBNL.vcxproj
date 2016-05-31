@@ -21,16 +21,22 @@
   <ItemGroup>
     <ClCompile Include="car_check.cpp" />
     <ClCompile Include="garage_communication.cpp" />
+    <ClCompile Include="html_gen.cpp" />
     <ClCompile Include="libthread\libthread_windows.cpp" />
+    <ClCompile Include="list\list.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="nbnl_db.cpp" />
     <ClCompile Include="serial_server.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="car_check.h" />
     <ClInclude Include="garage_communication.h" />
     <ClInclude Include="garage_protocol.h" />
+    <ClInclude Include="html_gen.h" />
     <ClInclude Include="libthread\mutex.h" />
     <ClInclude Include="libthread\thread.h" />
+    <ClInclude Include="list\list.h" />
+    <ClInclude Include="nbnl_db.h" />
     <ClInclude Include="serial_server.h" />
   </ItemGroup>
   <ItemGroup>
@@ -91,8 +97,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\SFML-2.3.2\include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
-    <LibraryPath>C:\SFML-2.3.2\lib;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
+    <IncludePath>include;C:\SFML-2.3.2\include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <LibraryPath>lib;C:\SFML-2.3.2\lib;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -114,7 +120,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>sfml-graphics-d.lib;sfml-window-d.lib;sfml-system-d.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>sqlite_lib_static.lib;sfml-graphics-d.lib;sfml-window-d.lib;sfml-system-d.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
