@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <ctime>
+#include <vector>
 
 using namespace std;
 
@@ -16,6 +17,6 @@ typedef struct garage_stats_entry {
 	char called[BUFFER_LEN];
 } garage_stats_entry;
 
-void sortEntries (garage_stats_entry entries [], int size);
+void sortEntries (vector<garage_stats_entry> entries);
 
 #endif // SORTENTRIES_H_INCLUDED
