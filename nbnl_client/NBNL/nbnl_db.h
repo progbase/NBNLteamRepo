@@ -8,7 +8,9 @@
 #define TYPE_CLOSE_STR "CLOSE"
 #define CALLED_MANUALLY_STR "MANUALLY"
 #define CALLED_AUTOMATICALLY_STR "AUTOMATICALLY"
-
+#include <algorithm>
+#include <ctime>
+#include <vector>
 typedef struct db_con_s db_con_t;
 typedef struct garage_stats_entry {
 	size_t id;
@@ -16,7 +18,7 @@ typedef struct garage_stats_entry {
 	time_t actionTime;
 	char called[BUFFER_LEN];
 } garage_stats_entry;
-
+void sortEntries(vector<garage_stats_entry> entries);
 db_con_t * db_connect(char * file_name);
 list_t * db_get_garage_stats(db_con_t * self);
 list_t * db_get_garage_stats_filtered(db_con_t * self, time_t from);

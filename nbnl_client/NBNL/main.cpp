@@ -201,7 +201,7 @@ int main(void)
 					}
 				}
 			}
-			if (car_check_status == 1)
+			if (car_check_status == 0)
 			{
 				if (garage_get_door_status(serial_garage) == 0)
 				{
@@ -213,7 +213,7 @@ int main(void)
 					}
 				}
 			}
-			if (car_check_status == 0 && doorOpenedByCar == 1)
+			if (car_check_status == 1 && doorOpenedByCar == 1)
 			{
 				int rc = garage_set_door_close(serial_garage);
 				if (rc == 1)
