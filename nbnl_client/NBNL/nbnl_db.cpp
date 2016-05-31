@@ -3,10 +3,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <algorithm>
+#include <ctime>
+#include <vector>
 #include <time.h>
+using namespace std;
 struct db_con_s {
 	sqlite3 * db;
 };
+bool sortFunction (garage_stats_entry g1, garage_stats_entry g2)
+ {
+     return g1.actionTime < g2.actionTime;
+ }
+ 
+void sortEntries(vector<garage_stats_entry> entries)
+{
+    sort (entries.begin(), entries.end (), sortFunction);
+}
 db_con_t * db_connect(char * file_name)
 {
 	db_con_t * self = (db_con_t *)malloc(sizeof(db_con_t));
